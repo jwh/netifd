@@ -49,6 +49,21 @@ IF (NOT DEFINED LIBNL_LIBS)
 	ENDIF()
 ENDIF()
 
+IF (NOT DEFINED LIBXDP_LIBS)
+	include(FindPkgConfig)
+	pkg_search_module(LIBXDP libxdp)
+	IF (LIBXDP_FOUND)
+		include_directories(${LIBXDP_INCLUDE_DIRS})
+		SET(LIBXDP_LIBS ${LIBXDP_LIBRARIES})
+	ENDIF()
+ENDIF()
+
+if(LIBXDP_LIBS)
+	SET(SOURCES ${SOURCES} xdp.c)
+	SET(LIBS ${LIBS} ${LIBXDP_LIBS})
+        ADD_DEFINITIONS(-DLIBXDP)
+ENDIF()
+
 ADD_CUSTOM_COMMAND(
 	OUTPUT ethtool-modes.h
 	COMMAND ./make_ethtool_modes_h.sh ${CMAKE_C_COMPILER} > ./ethtool-modes.h
@@ -70,7 +85,6 @@ IF(DEBUG)
     ADD_DEFINITIONS(-O0)
   ENDIF()
 ENDIF()
-
 
 ADD_EXECUTABLE(netifd ${SOURCES})
 
